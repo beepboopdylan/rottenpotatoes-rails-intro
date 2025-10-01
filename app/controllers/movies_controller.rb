@@ -15,7 +15,14 @@ class MoviesController < ApplicationController
     else
       @ratings_to_show = @all_ratings # empty, so return everything
     end
+
+    @sort_by = params[:sort_by]
     @movies = Movie.with_ratings(@ratings_to_show)
+
+    if @sort_by != nil
+      # user selected, so return sorted
+      @movies = @movies.order(@sort_by)
+    end
   end
 
   def new
