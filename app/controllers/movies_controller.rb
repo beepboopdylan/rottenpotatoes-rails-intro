@@ -7,7 +7,15 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    # variables from index.html.erb: movies, all
+    @all_ratings = Movie.ratings
+
+    if params[:ratings].present?
+      @ratings_to_show = params[:ratings].keys # -->["G", "PG"]
+    else
+      @ratings_to_show = @all_ratings # empty, so return everything
+    end
+    @movies = Movie.with_ratings(@ratings_to_show)
   end
 
   def new
