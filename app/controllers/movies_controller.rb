@@ -23,6 +23,17 @@ class MoviesController < ApplicationController
     #   # user selected, so return sorted
     #   @movies = @movies.order(@sort_by)
     # end
+    # used by autograder
+
+    # one thing to remember is the sorted by, 
+    if params[:sort_by] != nil
+      session[:sort_by] = params[:sort_by]
+      @sort_by = params[:sort_by]
+    elsif session[:sort_by]!= nil
+      @sort_by = session[:sort_by]
+    else
+      @sort_by = nil
+    end
 
     @all_ratings = Movie.ratings
     # we need to save ratings
@@ -30,7 +41,7 @@ class MoviesController < ApplicationController
     if params[:ratings] != nil
       # user just submits form
       session[:ratings] = params[:ratings]
-      @ratings_to_show = params[:ratings].keys
+      @ratings_to_show = params[:ratings].keys # hash
       # save everything so we remember the request
     elsif params[:commit] != nil
       # if all are unchecked, return everything
@@ -42,27 +53,19 @@ class MoviesController < ApplicationController
       # default
       @ratings_to_show = @all_ratings
     end
-    
-    # another thing to remember is the sorted by
-    if params[:sort_by] != nil
-      session[:sort_by] = params[:sort_by]
-      @sort_by = params[:sort_by]
-    elsif session[:sort_by]!= nil
-      @sort_by = session[:sort_by]
-    else
-      @sort_by = nil
-    end
-
+  
     # one more thing: if we have remembered states but no params,
     # we can use redirect_to movies_path
 
     if (params[:ratings] == nil && params[:sort_by] == nil)
       if session[:ratings] != nil || session[:sort_by] != nil
+        # https://api.rubyonrails.org/classes/ActionController/Redirecting.html
+        # https://guides.rubyonrails.org/routing.html#path-and-url-helpers
         return redirect_to movies_path(ratings: session[:ratings], sort_by: session[:sort_by])
       end
     end
     
-    @movies = Movie.with_ratings(@ratings_to_show)
+    @movies = Movie.with_ratings(@ratings_to_show) # calling function
     if @sort_by != nil
       # user selected, so return sorted
       @movies = @movies.order(@sort_by)
